@@ -247,7 +247,7 @@
     root.innerHTML = `
       <p><span class="eyebrow">Email</span><a href="mailto:${esc(c.email)}">${esc(c.email)}</a></p>
       ${c.phone ? `<p><span class="eyebrow">Phone</span><a href="tel:${esc(c.phone.replace(/[^\d+]/g, ""))}">${esc(c.phone)}</a></p>` : ""}
-      <p><span class="eyebrow">Based in</span>${esc(SITE.location)}</p>
+      <p><span class="eyebrow">About</span>${esc(SITE.location)}</p>
       <div class="social">${socialLinks()}</div>`;
 
     const form = $("#contact-form");

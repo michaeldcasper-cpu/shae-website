@@ -4,9 +4,9 @@
  * Anything marked TODO is placeholder content waiting on real material.
  */
 const SITE = {
-  name: "SHAE LASTNAME",            // TODO: real name as it should appear in the header
-  tagline: "Photographer & Filmmaker", // TODO: title line under the name
-  location: "City, State",          // TODO
+  name: "SHAE GRIFFITH",
+  tagline: "Photographer & Filmmaker",
+  location: "Mizzou student · Chicago native",
 
   // Home page hero — these fade into one another (Kyle Button style).
   // Landscape images, ~1920x1080 or larger.
