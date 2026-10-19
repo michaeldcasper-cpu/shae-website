@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{name}</title>
+  <meta name="description" content="Photography and film portfolio."><!-- TODO: real description -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Josefin+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body data-page="home">
+  <main>
+    <!-- Hero: photos crossfade every 5s -->
+    <section class="hero" id="hero">
+      <div class="hero-text">
+        <h1 id="hero-name"></h1>
+        <p id="hero-tagline"></p>
+      </div>
+      <div class="hero-controls">
+        <button id="hero-prev" aria-label="Previous photo">←</button>
+        <span id="hero-count"></span>
+        <button id="hero-next" aria-label="Next photo">→</button>
+      </div>
+      <a class="scroll-cue" href="#work" aria-label="Scroll to projects"></a>
+    </section>
+
+    <!-- Projects bar: links to each project page -->
+    <section class="section" id="work">
+      <div class="container">
+        <div class="section-head reveal">
+          <div><p class="eyebrow">Selected work</p><h2>Projects</h2></div>
+          <div class="bar-arrows">
+            <button id="bar-prev" aria-label="Scroll projects left">←</button>
+            <button id="bar-next" aria-label="Scroll projects right">→</button>
+          </div>
+        </div>
+        <div class="project-bar" id="project-bar"></div>
+        <p style="margin-top:2rem" class="reveal"><a class="btn" href="projects.html">View all projects</a></p>
+      </div>
+    </section>
+
+    <!-- About teaser -->
+    <section class="section" style="padding-top:0">
+      <div class="container" id="about-teaser"></div>
+    </section>
+  </main>
+  <script src="assets/js/site-data.js"></script>
+  <script src="assets/js/main.js"></script>
+</body>
+</html>
