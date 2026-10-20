@@ -125,8 +125,8 @@ const SITE = {
   },
 
   contact: {
-    email: "hello@example.com", // TODO
-    phone: "",                  // optional — leave "" to hide
+    email: "shaeshootsphotos@gmail.com",
+    phone: "(312) 722-7933", // optional — leave "" to hide
     // Form submissions: create a free form at formspree.io and paste its endpoint here.
     // Left blank, the form falls back to opening the visitor's email app.
     formEndpoint: "",
