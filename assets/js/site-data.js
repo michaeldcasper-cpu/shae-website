@@ -23,7 +23,7 @@ const SITE = {
   // video: an .mp4 in assets/video/ (or a YouTube/Vimeo link); poster: the still shown before play.
   // aspect: the film's width / height, so it shows uncropped. link: optional project id for the title.
   featured: [
-    { title: "Odyssey", subtitle: "Mizzou Football", video: "assets/video/odyssey.mp4", poster: "assets/video/odyssey-poster.jpg", link: "mizzou-football", aspect: 16 / 9 },
+    { title: "Mizzou vs. Kansas", subtitle: "Mizzou Football", video: "assets/video/odyssey.mp4", poster: "assets/video/odyssey-poster.jpg", link: "mizzou-football", aspect: 16 / 9 },
     { title: "You", subtitle: "Mizzou Football", video: "assets/video/you.mp4", poster: "assets/video/you-poster.jpg", link: "mizzou-football", aspect: 4 / 3 },
     { title: "Game Day", subtitle: "Mizzou Football", video: "assets/video/mizzou-football.mp4", poster: "assets/video/mizzou-football-poster.jpg", link: "mizzou-football", aspect: 4 / 5 }, // TODO: real title
   ],
@@ -31,13 +31,14 @@ const SITE = {
   // Categories used for the filter bar on the Projects page.
   categories: ["Sports", "Lifestyle"],
 
-  // Projects — the home "Projects" bar and the Projects page are built from this list.
+  // Projects — every photo here feeds the home page scroll, grouped by `sport`.
   // id: used in the link (project.html?id=...), keep it lowercase-with-dashes.
   // video: optional .mp4 in assets/video/ or a YouTube/Vimeo link; leave "" for photo-only projects.
   // heroVideo: optional silent .mp4 that loops behind the project title.
   projects: [
     {
       id: "mizzou-football",
+      sport: "Football", // groups the home feed
       title: "Mizzou Football",
       category: "Sports",
       year: "2025",
@@ -55,6 +56,7 @@ const SITE = {
     },
     {
       id: "mizzou-basketball",
+      sport: "Basketball", // groups the home feed
       title: "Mizzou Basketball",
       category: "Sports",
       year: "2026",
@@ -79,6 +81,7 @@ const SITE = {
     },
     {
       id: "mizzou-volleyball",
+      sport: "Volleyball", // groups the home feed
       title: "Mizzou Volleyball",
       category: "Sports",
       year: "2025",
@@ -94,6 +97,7 @@ const SITE = {
     },
     {
       id: "mizzou-athletics",
+      sport: "Diamond & Pitch", // groups the home feed
       title: "Mizzou Athletics",
       category: "Sports",
       year: "2026",
@@ -110,6 +114,7 @@ const SITE = {
     },
     {
       id: "nebraska-at-wrigley",
+      sport: "Volleyball", // groups the home feed
       title: "Nebraska at Wrigley",
       category: "Sports",
       year: "2026",
@@ -150,6 +155,7 @@ const SITE = {
     },
     {
       id: "kentucky-volleyball",
+      sport: "Volleyball", // groups the home feed
       title: "Kentucky Volleyball",
       category: "Sports",
       year: "2026",
@@ -185,6 +191,7 @@ const SITE = {
     },
     {
       id: "depaul-prep-football",
+      sport: "Football", // groups the home feed
       title: "DePaul Prep Media Day",
       category: "Sports",
       year: "2025",
@@ -199,6 +206,7 @@ const SITE = {
     },
     {
       id: "day-in-the-life",
+      sport: "Lifestyle", // groups the home feed
       title: "Day in the Life",
       category: "Lifestyle",
       year: "2025",

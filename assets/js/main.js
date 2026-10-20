@@ -84,45 +84,87 @@
   }
 
   /* ---------- Home: endless photo feed (urqshotit-style) ---------- */
-  // Every photo, over and over. Each pass spreads every shoot evenly through the whole pass
-  // (each photo gets a slot proportional to its place in its shoot, plus a little jitter), then
-  // swaps apart any photos from the same shoot that still land next to each other.
-  function mixedBatch(seed) {
+  // Endless feed grouped by sport: a run of up to 9 photos from one sport, then a run from
+  // another, never the same sport twice in a row. Big sports (volleyball) get split into several
+  // runs spread through the scroll. When every photo has been shown, the queues reshuffle and repeat.
+  const RUN_MAX = 9;
+  function makeRunMaker(seed) {
     const rand = () => (seed = (seed * 9301 + 49297) % 233280) / 233280;
     const shuffle = (a) => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rand() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
-    const items = SITE.projects.flatMap((p, g) => {
-      const photos = shuffle([...p.photos]), off = rand();
-      return photos.map((src, k) => ({ src, g, key: (k + off + (rand() - 0.5) * 0.6) / photos.length }));
-    }).sort((a, b) => a.key - b.key);
-    const clash = (i) => (i > 0 && items[i].g === items[i - 1].g) || (i > 1 && items[i].g === items[i - 2].g);
-    for (let i = 1; i < items.length; i++) {
-      if (!clash(i)) continue;
-      for (let j = i + 1; j < items.length; j++) {
-        [items[i], items[j]] = [items[j], items[i]];
-        if (!clash(i)) break;
-        [items[i], items[j]] = [items[j], items[i]];
-      }
-    }
-    return items.map((it) => it.src);
+    const bySport = {};
+    SITE.projects.forEach((p) => (bySport[p.sport || p.title] ||= []).push(...p.photos));
+    const sports = Object.keys(bySport);
+    const queues = {};
+    const refill = (sp) => (queues[sp] = shuffle([...bySport[sp]]));
+    const share = (sp) => queues[sp].length / bySport[sp].length; // how much of this sport is still waiting
+    sports.forEach(refill);
+    let last = null;
+    return () => {
+      let options = sports.filter((sp) => sp !== last && queues[sp].length);
+      if (!options.length) { sports.forEach((sp) => sp !== last && refill(sp)); options = sports.filter((sp) => sp !== last); }
+      // Start with football, then pick the sport furthest behind its fair share, so small
+      // groups (lifestyle, softball) show up early instead of after all the volleyball.
+      const sport = last === null && options.includes("Football") ? "Football"
+        : options.sort((x, y) => share(y) - share(x) || queues[y].length - queues[x].length)[0];
+      const left = queues[sport].length;
+      const size = Math.ceil(left / Math.ceil(left / RUN_MAX)); // even runs, no stragglers of 1–2
+      last = sport;
+      return { sport, photos: queues[sport].splice(0, size) };
+    };
   }
 
   function renderFeed() {
     const feed = $("#feed");
     if (!feed) return;
     const feedOf = (src) => src.replace(/\/([^/]+)$/, "/feed/$1");
-    let pass = 0;
-    const addBatch = () => {
-      const html = mixedBatch(101 + pass * 17)
-        .map((src) => `<figure class="feed-item reveal" data-full="${esc(src)}" data-group="feed"><img src="${esc(feedOf(src))}" alt="Photo by ${esc(SITE.name)}" loading="lazy"></figure>`)
-        .join("");
-      feed.insertAdjacentHTML("beforeend", html);
-      feed.querySelectorAll(".feed-item:not(.is-watched)").forEach((el) => { el.classList.add("is-watched"); watchReveal(el); });
-      pass++;
+    const nextRun = makeRunMaker(101);
+    const backdrop = setupBackdrop(feed);
+    const addRuns = (n) => {
+      for (let k = 0; k < n; k++) {
+        const run = nextRun();
+        const group = document.createElement("div");
+        group.className = "feed-group";
+        group.dataset.sport = run.sport;
+        group.dataset.bg = feedOf(run.photos[0]); // the faded photo behind this run
+        group.innerHTML = `<p class="feed-label eyebrow">${esc(run.sport)}</p><div class="feed">${run.photos
+          .map((src) => `<figure class="feed-item reveal" data-full="${esc(src)}" data-group="feed"><img src="${esc(feedOf(src))}" alt="${esc(run.sport)} photo by ${esc(SITE.name)}" loading="lazy"></figure>`)
+          .join("")}</div>`;
+        feed.append(group);
+        group.querySelectorAll(".feed-item").forEach((el) => { el.classList.add("is-watched"); watchReveal(el); });
+        backdrop.watch(group);
+      }
     };
-    addBatch();
-    // Keep adding another mixed pass before the visitor reaches the bottom.
-    new IntersectionObserver((entries) => entries[0].isIntersecting && addBatch(), { rootMargin: "1600px 0px" })
+    addRuns(6);
+    // Keep adding runs before the visitor reaches the bottom.
+    new IntersectionObserver((entries) => entries[0].isIntersecting && addRuns(4), { rootMargin: "1600px 0px" })
       .observe($("#feed-sentinel"));
+  }
+
+  // A faded photo pinned behind the feed (it stays in the feed section, never over the films). Whichever run crosses the middle of the screen sets it,
+  // and it crossfades between two layers when the sport changes.
+  function setupBackdrop(feed) {
+    const section = feed.closest(".feed-section");
+    section.insertAdjacentHTML("afterbegin", `<div class="feed-backdrop" aria-hidden="true"><div class="feed-backdrop-pin"><div class="feed-bg"></div><div class="feed-bg"></div></div></div>`);
+    const layers = [...section.querySelectorAll(".feed-bg")];
+    let front = 0, currentSport = null;
+    const show = (group) => {
+      if (group.dataset.sport === currentSport) return;
+      currentSport = group.dataset.sport;
+      front = 1 - front;
+      layers[front].style.backgroundImage = `url("${group.dataset.bg}")`;
+      layers[front].classList.add("is-on");
+      layers[1 - front].classList.remove("is-on");
+    };
+    // The run covering the middle of the screen is the current one.
+    const groups = [];
+    const update = () => {
+      const mid = window.innerHeight / 2;
+      const g = groups.find((el) => { const r = el.getBoundingClientRect(); return r.top <= mid && r.bottom >= mid; });
+      if (g) show(g);
+    };
+    window.addEventListener("scroll", update, { passive: true });
+    window.addEventListener("resize", update);
+    return { watch: (group) => { groups.push(group); update(); } };
   }
 
   /* ---------- Home: full-screen photo wall ---------- */
