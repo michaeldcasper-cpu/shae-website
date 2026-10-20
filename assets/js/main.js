@@ -10,8 +10,7 @@
   function renderHeader() {
     const links = [
       ["index.html", "Home", "home"],
-      ["portfolio.html", "Portfolio", "portfolio"],
-      ["projects.html", "Projects", "projects"],
+      ["index.html#portfolio", "Portfolio", "portfolio"],
       ["about.html", "About", "about"],
       ["contact.html", "Contact", "contact"],
     ];
@@ -50,6 +49,7 @@
   }
 
   function renderFooter() {
+    if (page === "home") return; // the endless feed means the bottom is never reached
     const footer = document.createElement("footer");
     footer.className = "site-footer";
     footer.innerHTML = `
@@ -73,7 +73,7 @@
   function allPhotos(seed) {
     const list = [
       ...SITE.projects.flatMap((p) => p.photos.map((src) => ({ src, href: `project.html?id=${encodeURIComponent(p.id)}`, title: p.title }))),
-      ...(SITE.collection || []).map((src) => ({ src, href: "portfolio.html", title: "Portfolio" })),
+      ...(SITE.collection || []).map((src) => ({ src, href: "#portfolio", title: "Portfolio" })),
     ];
     const rand = () => (seed = (seed * 9301 + 49297) % 233280) / 233280;
     for (let i = list.length - 1; i > 0; i--) {
@@ -83,15 +83,46 @@
     return list;
   }
 
-  /* ---------- Portfolio: every photo in one unsorted collage ---------- */
-  function renderPortfolio() {
-    const grid = $("#portfolio-grid");
-    if (!grid) return;
-    const photos = allPhotos(23);
-    grid.innerHTML = photos
-      .map((ph, i) => `<img class="reveal" src="${esc(thumbOf(ph.src))}" alt="${esc(ph.title)} photo" loading="lazy" data-index="${i}">`)
-      .join("");
-    setupLightbox(photos.map((ph) => ph.src)); // full-size photo opens on click
+  /* ---------- Home: endless photo feed (urqshotit-style) ---------- */
+  // Every photo, over and over. Each pass spreads every shoot evenly through the whole pass
+  // (each photo gets a slot proportional to its place in its shoot, plus a little jitter), then
+  // swaps apart any photos from the same shoot that still land next to each other.
+  function mixedBatch(seed) {
+    const rand = () => (seed = (seed * 9301 + 49297) % 233280) / 233280;
+    const shuffle = (a) => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rand() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+    const items = SITE.projects.flatMap((p, g) => {
+      const photos = shuffle([...p.photos]), off = rand();
+      return photos.map((src, k) => ({ src, g, key: (k + off + (rand() - 0.5) * 0.6) / photos.length }));
+    }).sort((a, b) => a.key - b.key);
+    const clash = (i) => (i > 0 && items[i].g === items[i - 1].g) || (i > 1 && items[i].g === items[i - 2].g);
+    for (let i = 1; i < items.length; i++) {
+      if (!clash(i)) continue;
+      for (let j = i + 1; j < items.length; j++) {
+        [items[i], items[j]] = [items[j], items[i]];
+        if (!clash(i)) break;
+        [items[i], items[j]] = [items[j], items[i]];
+      }
+    }
+    return items.map((it) => it.src);
+  }
+
+  function renderFeed() {
+    const feed = $("#feed");
+    if (!feed) return;
+    const feedOf = (src) => src.replace(/\/([^/]+)$/, "/feed/$1");
+    let pass = 0;
+    const addBatch = () => {
+      const html = mixedBatch(101 + pass * 17)
+        .map((src) => `<figure class="feed-item reveal" data-full="${esc(src)}" data-group="feed"><img src="${esc(feedOf(src))}" alt="Photo by ${esc(SITE.name)}" loading="lazy"></figure>`)
+        .join("");
+      feed.insertAdjacentHTML("beforeend", html);
+      feed.querySelectorAll(".feed-item:not(.is-watched)").forEach((el) => { el.classList.add("is-watched"); watchReveal(el); });
+      pass++;
+    };
+    addBatch();
+    // Keep adding another mixed pass before the visitor reaches the bottom.
+    new IntersectionObserver((entries) => entries[0].isIntersecting && addBatch(), { rootMargin: "1600px 0px" })
+      .observe($("#feed-sentinel"));
   }
 
   /* ---------- Home: full-screen photo wall ---------- */
@@ -107,7 +138,7 @@
     const per = Math.ceil(pool.length / ROWS);
     stage.innerHTML = Array.from({ length: ROWS }, (_, r) => {
       const tiles = pool.slice(r * per, (r + 1) * per).map((ph) =>
-        `<a class="reel-tile" href="${esc(ph.href)}" aria-label="${esc(ph.title)}" tabindex="-1"><img src="${esc(thumbOf(ph.src))}" alt="" draggable="false"></a>`
+        `<a class="reel-tile" href="#portfolio" data-full="${esc(ph.src)}" data-group="reel" aria-label="View photo" tabindex="-1"><img src="${esc(thumbOf(ph.src))}" alt="" draggable="false"></a>`
       ).join("");
       return `<div class="reel-row"><div class="reel-track">${tiles}${tiles}</div></div>`; // doubled for a seamless loop
     }).join("");
@@ -200,6 +231,12 @@
         </article>`;
       })
       .join("");
+    // Triangle layout: first film full width, the next two paired beneath it. Their columns are
+    // sized by each film's shape so the pair sits at equal height.
+    if (grid.classList.contains("featured-triangle") && SITE.featured.length >= 3) {
+      const [, a, b] = SITE.featured;
+      grid.style.setProperty("--cols", `${+a.aspect || 16 / 9}fr ${+b.aspect || 16 / 9}fr`);
+    }
     grid.addEventListener("click", (e) => {
       const btn = e.target.closest(".film-play");
       if (!btn) return;
@@ -303,7 +340,7 @@
         </div>
         ${film}
         <div class="gallery">
-          ${p.photos.map((src, i) => `<img class="reveal" src="${esc(src)}" alt="${esc(p.title)} photo ${i + 1}" loading="lazy" data-index="${i}">`).join("")}
+          ${p.photos.map((src, i) => `<img class="reveal" src="${esc(src)}" alt="${esc(p.title)} photo ${i + 1}" loading="lazy" data-full="${esc(src)}" data-group="project">`).join("")}
         </div>
         <a class="next-project reveal" href="project.html?id=${encodeURIComponent(next.id)}">
           <span class="eyebrow">Next project</span><span class="next-title">${esc(next.title)} →</span>
@@ -316,28 +353,36 @@
       toggle.textContent = bg.paused ? "Play" : "Pause";
       toggle.setAttribute("aria-label", `${toggle.textContent} background video`);
     });
-    setupLightbox(p.photos);
   }
 
-  function setupLightbox(photos) {
+  // Full-size viewer for anything with data-full. Arrows step through items in the same data-group,
+  // including feed photos added later.
+  function setupLightbox() {
     const box = document.createElement("div");
     box.className = "lightbox";
     box.innerHTML = `<button class="lb-close" aria-label="Close">×</button><button class="lb-prev" aria-label="Previous">‹</button><img alt=""><button class="lb-next" aria-label="Next">›</button>`;
     document.body.append(box);
     const img = $("img", box);
-    let i = 0;
-    const open = (n) => { i = (n + photos.length) % photos.length; img.src = photos[i]; box.classList.add("is-open"); };
+    let current = null;
+    const items = () => [...document.querySelectorAll(`[data-full][data-group="${current.dataset.group}"]`)];
+    const open = (el) => { current = el; img.src = el.dataset.full; box.classList.add("is-open"); };
+    const step = (d) => { const list = items(); open(list[(list.indexOf(current) + d + list.length) % list.length]); };
     const close = () => box.classList.remove("is-open");
-    document.querySelectorAll(".gallery img").forEach((el) => el.addEventListener("click", () => open(+el.dataset.index)));
+    document.addEventListener("click", (e) => {
+      const el = e.target.closest("[data-full]");
+      if (!el) return;
+      e.preventDefault();
+      open(el);
+    });
     $(".lb-close", box).addEventListener("click", close);
-    $(".lb-prev", box).addEventListener("click", () => open(i - 1));
-    $(".lb-next", box).addEventListener("click", () => open(i + 1));
+    $(".lb-prev", box).addEventListener("click", () => step(-1));
+    $(".lb-next", box).addEventListener("click", () => step(1));
     box.addEventListener("click", (e) => e.target === box && close());
     document.addEventListener("keydown", (e) => {
       if (!box.classList.contains("is-open")) return;
       if (e.key === "Escape") close();
-      if (e.key === "ArrowLeft") open(i - 1);
-      if (e.key === "ArrowRight") open(i + 1);
+      if (e.key === "ArrowLeft") step(-1);
+      if (e.key === "ArrowRight") step(1);
     });
   }
 
@@ -396,23 +441,21 @@
     });
   }
 
-  /* ---------- Scroll reveal (Jarrell-style slide-in on scroll) ---------- */
-  function setupReveal() {
-    const els = document.querySelectorAll(".reveal");
-    if (!("IntersectionObserver" in window)) return els.forEach((el) => el.classList.add("is-visible"));
-    const io = new IntersectionObserver(
-      (entries) => entries.forEach((en) => {
-        if (en.isIntersecting) { en.target.classList.add("is-visible"); io.unobserve(en.target); }
-      }),
-      { threshold: 0.12, rootMargin: "0px 0px -40px 0px" }
-    );
-    els.forEach((el) => io.observe(el));
-  }
+  /* ---------- Scroll reveal: items ease up and fade in as they enter view ---------- */
+  const revealer = "IntersectionObserver" in window
+    ? new IntersectionObserver(
+        (entries) => entries.forEach((en) => {
+          if (en.isIntersecting) { en.target.classList.add("is-visible"); revealer.unobserve(en.target); }
+        }),
+        { threshold: 0.08, rootMargin: "0px 0px -40px 0px" }
+      )
+    : null;
+  const watchReveal = (el) => (revealer ? revealer.observe(el) : el.classList.add("is-visible"));
 
   renderHeader();
   renderReel();
   renderFeatured();
-  renderPortfolio();
+  renderFeed();
   renderProjectBar();
   renderAboutTeaser();
   renderProjectGrid();
@@ -421,5 +464,6 @@
   renderContact();
   renderFooter();
   if (page !== "project") document.title = document.title.replace("{name}", SITE.name);
-  setupReveal();
+  document.querySelectorAll(".reveal:not(.is-watched)").forEach(watchReveal);
+  setupLightbox();
 })();

@@ -18,38 +18,25 @@
       <svg class="reel-veil" id="reel-veil" aria-hidden="true"></svg>
       <div class="reel-text">
         <h1 class="visually-hidden" id="hero-name"></h1>
-        <a class="btn hero-btn" href="portfolio.html">Portfolio</a>
+        <a class="btn hero-btn" href="#portfolio">Portfolio</a>
       </div>
       <a class="scroll-cue" href="#featured" aria-label="Scroll to featured projects"></a>
     </section>
 
-    <!-- Featured films: click to play the full video inline -->
+    <!-- Films: Odyssey full width on top, the other two paired beneath (triangle) -->
     <section class="section" id="featured">
       <div class="container">
         <div class="section-head reveal">
           <div><p class="eyebrow">Films</p><h2>Featured Projects</h2></div>
         </div>
-        <div class="featured-grid" id="featured-grid"></div>
+        <div class="featured-grid featured-triangle" id="featured-grid"></div>
       </div>
     </section>
 
-    <!-- Projects bar: links to each project page -->
-    <section class="section" id="work">
-      <div class="container">
-        <div class="section-head reveal">
-          <div><p class="eyebrow">Selected work</p><h2>Projects</h2></div>
-          <div class="bar-arrows">
-            <button id="bar-prev" aria-label="Scroll projects left">←</button>
-            <button id="bar-next" aria-label="Scroll projects right">→</button>
-          </div>
-        </div>
-        <div class="project-bar" id="project-bar"></div>
-      </div>
-    </section>
-
-    <!-- About teaser -->
-    <section class="section" style="padding-top:0">
-      <div class="container" id="about-teaser"></div>
+    <!-- Portfolio: endless scroll of every photo, mixed so no shoot clumps together -->
+    <section class="feed-section" id="portfolio" aria-label="Portfolio">
+      <div class="feed" id="feed"></div>
+      <div class="feed-sentinel" id="feed-sentinel" aria-hidden="true"></div>
     </section>
   </main>
   <script src="assets/js/site-data.js"></script>
