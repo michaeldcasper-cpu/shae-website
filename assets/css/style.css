@@ -145,7 +145,7 @@ p { margin: 0 0 1em; }
 
 /* Split (about teaser + about page) */
 .split { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: clamp(32px, 6vw, 96px); align-items: center; }
-.split img { width: 100%; aspect-ratio: 3 / 4; object-fit: cover; }
+.split img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; }
 @media (max-width: 760px) { .split { grid-template-columns: 1fr; } }
 
 /* About page */

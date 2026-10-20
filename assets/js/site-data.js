@@ -113,7 +113,7 @@ const SITE = {
   ],
 
   about: {
-    portrait: "assets/img/about/portrait.svg",
+    portrait: "assets/img/about/portrait.jpg",
     headline: "Bringing positivity into the lens.",
     bio: [
       "I've been a competitor my entire life, on and off the field, and I knew picking up a camera was my way to stay close to the game.",
