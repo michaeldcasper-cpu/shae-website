@@ -101,31 +101,30 @@ const SITE = {
 
   about: {
     portrait: "assets/img/about/portrait.svg",
-    headline: "Telling stories through the lens.", // TODO
+    headline: "Bringing positivity into the lens.",
     bio: [
-      // TODO: 2–4 short paragraphs
-      "Paragraph one: who you are and what you shoot.",
-      "Paragraph two: your background, style, and what drives your work.",
-      "Paragraph three: what clients can expect working with you.",
+      "I've been a competitor my entire life, on and off the field, and I knew picking up a camera was my way to stay close to the game.",
+      "What started as taking photos grew into producing films of the events I shoot.",
+      "Through every team and event I cover, one thing has stayed close to my heart: bringing positivity into the lens and telling stories, whether in stills or in frames.",
     ],
-    services: ["Sports Photography", "Event Coverage", "Short Documentary", "Video Editing"], // TODO
-    clients: ["Client One", "Client Two", "Client Three", "Client Four"], // TODO (optional)
+    services: ["Sports Photography", "Game-Day Films", "Event Coverage", "Video Editing"],
+    clients: [], // optional — e.g. ["Nebraska Volleyball"]; empty hides the section
   },
 
   contact: {
     email: "hello@example.com", // TODO
-    phone: "(000) 000-0000",    // TODO (optional — set to "" to hide)
+    phone: "",                  // optional — leave "" to hide
     // Form submissions: create a free form at formspree.io and paste its endpoint here.
     // Left blank, the form falls back to opening the visitor's email app.
     formEndpoint: "",
   },
 
   social: {
-    // TODO: full URLs; leave "" to hide an icon
-    instagram: "https://instagram.com/",
+    // full URLs; leave "" to hide an icon
+    instagram: "https://www.instagram.com/shae_shoots/",
     youtube: "",
     vimeo: "",
-    tiktok: "",
+    tiktok: "https://www.tiktok.com/@shae_shoots",
     linkedin: "",
   },
 };
