@@ -140,31 +140,49 @@
       .observe($("#feed-sentinel"));
   }
 
-  // A faded photo pinned behind the feed (it stays in the feed section, never over the films). Whichever run crosses the middle of the screen sets it,
-  // and it crossfades between two layers when the sport changes.
+  // A faded photo pinned behind the feed (it stays in the feed section, never over the films).
+  // The blend is driven by scroll position, not a timer: as the boundary between two runs
+  // passes the middle of the screen, the next sport's photo rises over the current one across
+  // about a screen-height of scrolling, eased at both ends, so the two photos merge smoothly.
   function setupBackdrop(feed) {
     const section = feed.closest(".feed-section");
-    section.insertAdjacentHTML("afterbegin", `<div class="feed-backdrop" aria-hidden="true"><div class="feed-backdrop-pin"><div class="feed-bg"></div><div class="feed-bg"></div></div></div>`);
-    const layers = [...section.querySelectorAll(".feed-bg")];
-    let front = 0, currentSport = null;
-    const show = (group) => {
-      if (group.dataset.sport === currentSport) return;
-      currentSport = group.dataset.sport;
-      front = 1 - front;
-      layers[front].style.backgroundImage = `url("${group.dataset.bg}")`;
-      layers[front].classList.add("is-on");
-      layers[1 - front].classList.remove("is-on");
-    };
-    // The run covering the middle of the screen is the current one.
+    section.insertAdjacentHTML("afterbegin", `<div class="feed-backdrop" aria-hidden="true"><div class="feed-backdrop-pin"><div class="feed-bg"></div><div class="feed-bg feed-bg-top"></div></div></div>`);
+    const [base, top] = section.querySelectorAll(".feed-bg");
     const groups = [];
+    const setImg = (el, url) => {
+      if (el.dataset.url === url) return;
+      el.dataset.url = url || "";
+      el.style.backgroundImage = url ? `url("${url}")` : "none";
+    };
+    const ease = (t) => t * t * (3 - 2 * t); // smoothstep: gentle start, gentle finish
     const update = () => {
-      const mid = window.innerHeight / 2;
-      const g = groups.find((el) => { const r = el.getBoundingClientRect(); return r.top <= mid && r.bottom >= mid; });
-      if (g) show(g);
+      if (!groups.length) return;
+      const mid = window.innerHeight / 2, maxZone = window.innerHeight * 0.6;
+      const rects = groups.map((g) => g.getBoundingClientRect());
+      const bounds = rects.slice(1).map((r, k) => (rects[k].bottom + r.top) / 2); // changeover points
+      let i = groups.length - 1, t = 0;
+      for (let k = 0; k < bounds.length; k++) {
+        // Short runs get a shorter blend so one fade always finishes before the next begins.
+        const zone = Math.min(maxZone, k > 0 ? (bounds[k] - bounds[k - 1]) / 2 : maxZone, k < bounds.length - 1 ? (bounds[k + 1] - bounds[k]) / 2 : maxZone);
+        if (mid < bounds[k] + zone) {
+          i = k;
+          t = Math.min(1, Math.max(0, (mid - (bounds[k] - zone)) / (2 * zone)));
+          break;
+        }
+      }
+      setImg(base, groups[i].dataset.bg);
+      setImg(top, groups[i + 1]?.dataset.bg);
+      top.style.opacity = ease(t).toFixed(3);
     };
     window.addEventListener("scroll", update, { passive: true });
     window.addEventListener("resize", update);
-    return { watch: (group) => { groups.push(group); update(); } };
+    return {
+      watch: (group) => {
+        groups.push(group);
+        new Image().src = group.dataset.bg; // preload so a blend never waits on a download
+        update();
+      },
+    };
   }
 
   /* ---------- Home: full-screen photo wall ---------- */
