@@ -10,6 +10,7 @@
   function renderHeader() {
     const links = [
       ["index.html", "Home", "home"],
+      ["portfolio.html", "Portfolio", "portfolio"],
       ["projects.html", "Projects", "projects"],
       ["about.html", "About", "about"],
       ["contact.html", "Contact", "contact"],
@@ -17,7 +18,11 @@
     const header = document.createElement("header");
     header.className = "site-header" + (page === "home" ? " is-overlay" : "");
     header.innerHTML = `
-      <a class="brand" href="index.html">${esc(SITE.name)}</a>
+      <a class="brand" href="index.html" aria-label="${esc(SITE.name)} home">${
+        SITE.logo
+          ? `<img class="brand-logo" src="${esc(SITE.logo)}" alt="${esc(SITE.name)}">`
+          : `<span class="brand-mark">${esc(SITE.monogram || "SS")}</span>`
+      }</a>
       <button class="nav-toggle" aria-label="Open menu" aria-expanded="false"><span></span><span></span></button>
       <nav class="site-nav">
         ${links
@@ -62,63 +67,54 @@
     document.body.append(footer);
   }
 
-  /* ---------- Home: spinning photo cylinder ---------- */
-  // Three rows of photos wrapped around a 3D drum, the middle row turning the other way.
-  // Tiles on the far side face away and vanish (backface hidden); while hidden they swap
-  // to the next unused photo, so every photo eventually comes around.
+  /* ---------- Shared photo helpers ---------- */
+  const thumbOf = (src) => src.replace(/\/([^/]+)$/, "/thumbs/$1");
+  // Every project photo, in a fixed shuffled order so neighbours come from different shoots.
+  function allPhotos(seed) {
+    const list = [
+      ...SITE.projects.flatMap((p) => p.photos.map((src) => ({ src, href: `project.html?id=${encodeURIComponent(p.id)}`, title: p.title }))),
+      ...(SITE.collection || []).map((src) => ({ src, href: "portfolio.html", title: "Portfolio" })),
+    ];
+    const rand = () => (seed = (seed * 9301 + 49297) % 233280) / 233280;
+    for (let i = list.length - 1; i > 0; i--) {
+      const j = Math.floor(rand() * (i + 1));
+      [list[i], list[j]] = [list[j], list[i]];
+    }
+    return list;
+  }
+
+  /* ---------- Portfolio: every photo in one unsorted collage ---------- */
+  function renderPortfolio() {
+    const grid = $("#portfolio-grid");
+    if (!grid) return;
+    const photos = allPhotos(23);
+    grid.innerHTML = photos
+      .map((ph, i) => `<img class="reveal" src="${esc(thumbOf(ph.src))}" alt="${esc(ph.title)} photo" loading="lazy" data-index="${i}">`)
+      .join("");
+    setupLightbox(photos.map((ph) => ph.src)); // full-size photo opens on click
+  }
+
+  /* ---------- Home: full-screen photo wall ---------- */
+  // Three rows of photos fill the screen edge to edge and slide sideways: top and bottom rows
+  // drift right, the middle row drifts left. Hover slows them down; clicking opens the project.
   function renderReel() {
     const stage = $("#reel");
     if (!stage) return;
     $("#hero-name").textContent = SITE.name;
-    $("#hero-tagline").textContent = SITE.tagline;
 
-    const thumb = (src) => src.replace(/\/([^/]+)$/, "/thumbs/$1");
-    const pool = [
-      ...SITE.projects.flatMap((p) => p.photos.map((src) => ({ src: thumb(src), href: `project.html?id=${encodeURIComponent(p.id)}`, title: p.title }))),
-      ...(SITE.collection || []).map((src) => ({ src: thumb(src), href: "projects.html", title: "View all projects" })),
-    ];
-    let seed = 7; // fixed shuffle so neighbouring tiles come from different shoots
-    const rand = () => (seed = (seed * 9301 + 49297) % 233280) / 233280;
-    for (let i = pool.length - 1; i > 0; i--) {
-      const j = Math.floor(rand() * (i + 1));
-      [pool[i], pool[j]] = [pool[j], pool[i]];
-    }
+    const pool = allPhotos(7);
+    const ROWS = 3, dirs = [1, -1, 1];
+    const per = Math.ceil(pool.length / ROWS);
+    stage.innerHTML = Array.from({ length: ROWS }, (_, r) => {
+      const tiles = pool.slice(r * per, (r + 1) * per).map((ph) =>
+        `<a class="reel-tile" href="${esc(ph.href)}" aria-label="${esc(ph.title)}" tabindex="-1"><img src="${esc(thumbOf(ph.src))}" alt="" draggable="false"></a>`
+      ).join("");
+      return `<div class="reel-row"><div class="reel-track">${tiles}${tiles}</div></div>`; // doubled for a seamless loop
+    }).join("");
 
-    const ROWS = 3, PER_ROW = 16, STEP = 360 / PER_ROW;
-    const dirs = [1, -1, 1];
-    let next = 0;
-    const take = () => pool[next++ % pool.length];
-    const tileHTML = (ph, angle) =>
-      `<a class="reel-tile" href="${ph.href}" style="--a:${angle}deg" data-a="${angle}" aria-label="${esc(ph.title)}" tabindex="-1"><img src="${esc(ph.src)}" alt="" draggable="false"></a>`;
-    stage.innerHTML = Array.from({ length: ROWS }, (_, r) => `
-      <div class="reel-row" style="--row:${r - 1}">
-        <div class="reel-ring">
-          ${Array.from({ length: PER_ROW }, (_, i) => tileHTML(take(), i * STEP + ((r % 2) * STEP) / 2)).join("")}
-        </div>
-      </div>`).join("");
-
-    const rings = [...stage.querySelectorAll(".reel-ring")];
-    const tiles = rings.map((ring) => [...ring.querySelectorAll(".reel-tile")].map((el) => ({ el, a: +el.dataset.a, back: false })));
-    const swap = (t) => {
-      const ph = take();
-      t.el.href = ph.href;
-      t.el.setAttribute("aria-label", ph.title);
-      t.el.firstElementChild.src = ph.src;
-    };
-
-    const size = () => {
-      const h = Math.round(Math.min(window.innerHeight * 0.25, 250));
-      const w = Math.round(h * 1.3);
-      const r = Math.round((PER_ROW * (w + 14)) / (2 * Math.PI));
-      stage.style.setProperty("--h", `${h}px`);
-      stage.style.setProperty("--w", `${w}px`);
-      stage.style.setProperty("--r", `${r}px`);
-    };
-    size();
-    window.addEventListener("resize", size);
-
-    const angles = [0, 0, 0];
-    const CRUISE = 7, SLOW = 1.5; // degrees per second
+    const tracks = [...stage.querySelectorAll(".reel-track")];
+    const offsets = tracks.map(() => 0);
+    const CRUISE = 38, SLOW = 8; // pixels per second
     let speed = CRUISE, target = CRUISE, last = performance.now();
     stage.addEventListener("pointerenter", () => (target = SLOW));
     stage.addEventListener("pointerleave", () => (target = CRUISE));
@@ -126,16 +122,12 @@
       const dt = Math.min(now - last, 100) / 1000;
       last = now;
       speed += (target - speed) * Math.min(1, dt * 3);
-      rings.forEach((ring, r) => {
-        angles[r] = (angles[r] + dirs[r] * speed * dt + 360) % 360;
-        ring.style.transform = `translateZ(calc(var(--r) * -1)) rotateY(${angles[r]}deg)`;
-        if (pool.length <= ROWS * PER_ROW) return;
-        for (const t of tiles[r]) {
-          const e = (t.a + angles[r]) % 360;
-          const back = e > 140 && e < 220;
-          if (back && !t.back) swap(t);
-          t.back = back;
-        }
+      tracks.forEach((track, r) => {
+        const half = track.scrollWidth / 2;
+        if (!half) return;
+        offsets[r] += dirs[r] * speed * dt;
+        const x = ((offsets[r] % half) + half) % half;
+        track.style.transform = `translate3d(${x - half}px, 0, 0)`;
       });
       requestAnimationFrame(tick);
     };
@@ -143,7 +135,7 @@
     renderVeil();
   }
 
-  // Dark veil over the cylinder with SHAE GRIFFITH cut out, so the photos shine through the letters.
+  // Dark veil over the photo wall with SHAE GRIFFITH cut out, so the photos shine through the letters.
   function renderVeil() {
     const svg = $("#reel-veil");
     const text = $(".reel-text");
@@ -420,6 +412,7 @@
   renderHeader();
   renderReel();
   renderFeatured();
+  renderPortfolio();
   renderProjectBar();
   renderAboutTeaser();
   renderProjectGrid();

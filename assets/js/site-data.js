@@ -7,6 +7,8 @@ const SITE = {
   name: "SHAE GRIFFITH",
   tagline: "Photographer & Filmmaker",
   location: "Mizzou student · Chicago native",
+  logo: "",       // TODO: path to Shae's logo file (e.g. "assets/img/logo.png"); blank shows the SS monogram
+  monogram: "SS", // placeholder mark used until the logo is added
 
   // Home page hero — these fade into one another (Kyle Button style).
   // Landscape images, ~1920x1080 or larger.
