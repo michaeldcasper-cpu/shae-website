@@ -116,6 +116,27 @@ p { margin: 0 0 1em; }
 .project-meta h3 { font-size: 1.05rem; letter-spacing: 0.12em; text-transform: uppercase; margin: 0; }
 .project-meta span { color: var(--muted); font-size: 0.8rem; white-space: nowrap; }
 
+/* Featured films (home) */
+#work { padding-top: 0; }
+.featured-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 48px 28px; }
+@media (max-width: 760px) { .featured-grid { grid-template-columns: 1fr; } }
+.film-frame { position: relative; aspect-ratio: 16 / 9; background: #000; overflow: hidden; }
+.film-frame video, .film-frame iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; object-fit: contain; background: #000; }
+.film-play { position: absolute; inset: 0; width: 100%; padding: 0; border: 0; background: none; cursor: pointer; }
+.film-play img { width: 100%; height: 100%; object-fit: cover; filter: brightness(0.7); transition: transform 0.8s var(--ease), filter 0.5s; }
+.film-play:hover img, .film-play:focus-visible img { transform: scale(1.04); filter: brightness(0.9); }
+.play-icon {
+  position: absolute; left: 50%; top: 50%; width: 76px; height: 76px; transform: translate(-50%, -50%);
+  border: 1px solid rgba(255,255,255,.85); border-radius: 50%; background: rgba(0,0,0,.25); backdrop-filter: blur(4px);
+  transition: transform 0.3s var(--ease), background 0.3s;
+}
+.play-icon::after { content: ""; position: absolute; left: 31px; top: 25px; border-style: solid; border-width: 13px 0 13px 21px; border-color: transparent transparent transparent #fff; }
+.film-play:hover .play-icon { transform: translate(-50%, -50%) scale(1.1); background: rgba(0,0,0,.45); }
+.film-meta { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; padding-top: 14px; }
+.film-meta h3 { font-size: 1.05rem; letter-spacing: 0.12em; text-transform: uppercase; margin: 0; }
+.film-meta h3 a:hover { color: var(--accent); }
+.film-meta span { color: var(--muted); font-size: 0.8rem; white-space: nowrap; }
+
 /* Projects page grid */
 .filters { display: flex; flex-wrap: wrap; gap: 10px; margin: 1.5rem 0 2.5rem; }
 .filter { background: none; border: 1px solid var(--line); color: var(--muted); padding: 0.5em 1.2em; font-family: var(--font-display); font-size: 0.75rem; letter-spacing: 0.18em; text-transform: uppercase; cursor: pointer; }
@@ -137,6 +158,17 @@ p { margin: 0 0 1em; }
 /* Project detail */
 .project-hero { position: relative; height: 78vh; min-height: 420px; background-size: cover; background-position: center; }
 .project-hero::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,.2), rgba(0,0,0,.8)); }
+/* Looping background film behind the title, dimmed so the text stays readable */
+.project-hero-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.6; }
+.project-hero.has-video { height: 100vh; height: 100svh; background: #000 !important; /* video fades over black, not the cover photo */ }
+.hero-video-toggle {
+  position: absolute; z-index: 2; right: var(--gutter); top: 96px; /* clear of the title on phones */
+  background: rgba(0,0,0,.35); border: 1px solid rgba(255,255,255,.5); color: var(--text);
+  font-family: var(--font-display); font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase;
+  padding: 0.6em 1.2em; cursor: pointer;
+}
+.hero-video-toggle:hover { border-color: var(--text); }
+.project-hero.has-video::after { background: linear-gradient(180deg, rgba(0,0,0,.45) 0%, rgba(0,0,0,.15) 45%, rgba(0,0,0,.85) 100%); }
 .project-hero-text { position: absolute; z-index: 1; left: var(--gutter); right: var(--gutter); bottom: 56px; }
 .project-body { padding-top: 72px; padding-bottom: 120px; }
 .project-info { display: grid; grid-template-columns: 2fr 1fr; gap: 48px; margin-bottom: 72px; font-size: 1.15rem; }
@@ -145,7 +177,7 @@ p { margin: 0 0 1em; }
 .project-info dd { margin: 0; }
 @media (max-width: 760px) { .project-info { grid-template-columns: 1fr; } }
 .video { position: relative; aspect-ratio: 16 / 9; margin-bottom: 48px; background: var(--bg-2); }
-.video iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.video iframe, .video video { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; object-fit: contain; }
 /* Masonry columns: keeps portrait and landscape shots at their natural shape */
 .gallery { columns: 3; column-gap: 16px; }
 .gallery img { width: 100%; height: auto; margin-bottom: 16px; break-inside: avoid; cursor: zoom-in; }
@@ -198,4 +230,6 @@ p { margin: 0 0 1em; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition-duration: 0.01ms !important; animation: none !important; }
   .reveal { opacity: 1; transform: none; }
+  /* Keep the gentle crossfade, drop the slow zoom */
+  .hero-slide { transform: none; transition: opacity 1.6s ease !important; }
 }

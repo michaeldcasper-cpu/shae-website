@@ -87,7 +87,8 @@
     };
     const start = () => {
       clearInterval(timer);
-      if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) timer = setInterval(() => show(current + 1), 5000);
+      // The crossfade is the site's signature, so it always runs; reduced-motion only drops the zoom (see CSS).
+      timer = setInterval(() => show(current + 1), 5000);
     };
     $("#hero-prev").addEventListener("click", () => { show(current - 1); start(); });
     $("#hero-next").addEventListener("click", () => { show(current + 1); start(); });
@@ -113,6 +114,45 @@
     const scrollBy = (dir) => bar.scrollBy({ left: dir * bar.clientWidth * 0.8, behavior: "smooth" });
     $("#bar-prev")?.addEventListener("click", () => scrollBy(-1));
     $("#bar-next")?.addEventListener("click", () => scrollBy(1));
+  }
+
+  // Home: featured films. Shows the poster until clicked, then loads and plays the full video inline.
+  function renderFeatured() {
+    const grid = $("#featured-grid");
+    if (!grid || !SITE.featured?.length) return $("#featured")?.remove();
+    grid.innerHTML = SITE.featured
+      .map((f, i) => {
+        const title = f.link ? `<a href="project.html?id=${encodeURIComponent(f.link)}">${esc(f.title)}</a>` : esc(f.title);
+        return `
+        <article class="film reveal">
+          <div class="film-frame">
+            <button class="film-play" data-index="${i}" aria-label="Play ${esc(f.title)}">
+              <img src="${esc(f.poster)}" alt="" loading="lazy">
+              <span class="play-icon" aria-hidden="true"></span>
+            </button>
+          </div>
+          <div class="film-meta"><h3>${title}</h3><span>${esc(f.subtitle)}</span></div>
+        </article>`;
+      })
+      .join("");
+    grid.addEventListener("click", (e) => {
+      const btn = e.target.closest(".film-play");
+      if (!btn) return;
+      const f = SITE.featured[+btn.dataset.index];
+      const embed = videoEmbed(f.video);
+      const frame = btn.parentElement;
+      if (embed) {
+        frame.innerHTML = `<iframe src="${embed}?autoplay=1" title="${esc(f.title)}" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>`;
+        return;
+      }
+      frame.innerHTML = `<video src="${esc(f.video)}" poster="${esc(f.poster)}" controls autoplay playsinline preload="auto"></video>`;
+      const video = $("video", frame);
+      // Only one film plays at a time.
+      video.addEventListener("play", () =>
+        grid.querySelectorAll("video").forEach((v) => v !== video && v.pause())
+      );
+      video.play().catch(() => {});
+    });
   }
 
   function renderAboutTeaser() {
@@ -172,9 +212,20 @@
     }
     document.title = `${p.title} | ${SITE.name}`;
     const embed = videoEmbed(p.video);
+    const film = embed
+      ? `<div class="video reveal"><iframe src="${embed}" title="${esc(p.title)} video" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen loading="lazy"></iframe></div>`
+      : p.video
+        ? `<div class="video reveal"><video src="${esc(p.video)}" poster="${esc(p.videoPoster || p.cover)}" controls playsinline preload="none"></video></div>`
+        : "";
+    // Background loop behind the title, with a pause control for motion-sensitive visitors.
+    const heroVideo = p.heroVideo
+      ? `<video class="project-hero-video" src="${esc(p.heroVideo)}" poster="${esc(p.cover)}" autoplay muted loop playsinline aria-hidden="true"></video>
+         <button class="hero-video-toggle" aria-label="Pause background video">Pause</button>`
+      : "";
     const next = SITE.projects[(idx + 1) % SITE.projects.length];
     root.innerHTML = `
-      <section class="project-hero" style="background-image:url('${esc(p.cover)}')">
+      <section class="project-hero${heroVideo ? " has-video" : ""}" style="background-image:url('${esc(p.cover)}')">
+        ${heroVideo}
         <div class="project-hero-text">
           <p class="eyebrow">${esc(p.category)} · ${esc(p.year)}</p>
           <h1>${esc(p.title)}</h1>
@@ -185,7 +236,7 @@
           <p>${esc(p.summary)}</p>
           <dl><dt>Client</dt><dd>${esc(p.client)}</dd><dt>Year</dt><dd>${esc(p.year)}</dd></dl>
         </div>
-        ${embed ? `<div class="video reveal"><iframe src="${embed}" title="${esc(p.title)} video" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen loading="lazy"></iframe></div>` : ""}
+        ${film}
         <div class="gallery">
           ${p.photos.map((src, i) => `<img class="reveal" src="${esc(src)}" alt="${esc(p.title)} photo ${i + 1}" loading="lazy" data-index="${i}">`).join("")}
         </div>
@@ -193,6 +244,13 @@
           <span class="eyebrow">Next project</span><span class="next-title">${esc(next.title)} →</span>
         </a>
       </section>`;
+    const bg = $(".project-hero-video", root);
+    const toggle = $(".hero-video-toggle", root);
+    toggle?.addEventListener("click", () => {
+      bg.paused ? bg.play() : bg.pause();
+      toggle.textContent = bg.paused ? "Play" : "Pause";
+      toggle.setAttribute("aria-label", `${toggle.textContent} background video`);
+    });
     setupLightbox(p.photos);
   }
 
@@ -288,6 +346,7 @@
 
   renderHeader();
   renderHero();
+  renderFeatured();
   renderProjectBar();
   renderAboutTeaser();
   renderProjectGrid();

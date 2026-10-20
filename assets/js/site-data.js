@@ -17,12 +17,23 @@ const SITE = {
     "assets/img/projects/nebraska-wrigley/nebraska-wrigley-25.jpg",
   ],
 
+  // Featured films — playable videos on the home page, in this order.
+  // video: an .mp4 in assets/video/ (or a YouTube/Vimeo link); poster: the still shown before play.
+  // link: optional project id to link the title to.
+  featured: [
+    { title: "Odyssey", subtitle: "Mizzou Football", video: "assets/video/odyssey.mp4", poster: "assets/video/odyssey-poster.jpg" },
+    { title: "You", subtitle: "Mizzou Football", video: "assets/video/you.mp4", poster: "assets/video/you-poster.jpg" },
+    { title: "Game Day", subtitle: "Mizzou Football", video: "assets/video/mizzou-football.mp4", poster: "assets/video/mizzou-football-poster.jpg" }, // TODO: real title
+    { title: "Nebraska at Wrigley", subtitle: "Nebraska Volleyball", video: "assets/video/nebraska-wrigley.mp4", poster: "assets/video/nebraska-wrigley-poster.jpg", link: "nebraska-at-wrigley" },
+  ],
+
   // Categories used for the filter bar on the Projects page.
   categories: ["Sports"], // add more (e.g. "Documentary", "Events") as new work comes in
 
   // Projects — the home "Projects" bar and the Projects page are built from this list.
   // id: used in the link (project.html?id=...), keep it lowercase-with-dashes.
-  // video: optional YouTube or Vimeo link; leave "" for photo-only projects.
+  // video: optional .mp4 in assets/video/ or a YouTube/Vimeo link; leave "" for photo-only projects.
+  // heroVideo: optional silent .mp4 that loops behind the project title.
   projects: [
     {
       id: "nebraska-at-wrigley",
@@ -32,7 +43,9 @@ const SITE = {
       client: "Big Ten × SEC Volleyball Challenge", // TODO: confirm client / outlet
       cover: "assets/img/projects/nebraska-wrigley/nebraska-wrigley-10.jpg",
       summary: "Nebraska volleyball under the lights at Wrigley Field for the Big Ten × SEC Volleyball Challenge, September 9, 2026.", // TODO: Shae's own words
-      video: "",
+      video: "assets/video/nebraska-wrigley.mp4",
+      videoPoster: "assets/video/nebraska-wrigley-poster.jpg",
+      heroVideo: "assets/video/nebraska-wrigley-bg.mp4", // silent loop behind the page title
       photos: [
         "assets/img/projects/nebraska-wrigley/nebraska-wrigley-01.jpg",
         "assets/img/projects/nebraska-wrigley/nebraska-wrigley-02.jpg",
