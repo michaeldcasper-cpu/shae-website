@@ -19,12 +19,11 @@ const SITE = {
 
   // Featured films — playable videos on the home page, in this order.
   // video: an .mp4 in assets/video/ (or a YouTube/Vimeo link); poster: the still shown before play.
-  // link: optional project id to link the title to.
+  // aspect: the film's width / height, so it shows uncropped. link: optional project id for the title.
   featured: [
-    { title: "Odyssey", subtitle: "Mizzou Football", video: "assets/video/odyssey.mp4", poster: "assets/video/odyssey-poster.jpg" },
-    { title: "You", subtitle: "Mizzou Football", video: "assets/video/you.mp4", poster: "assets/video/you-poster.jpg" },
-    { title: "Game Day", subtitle: "Mizzou Football", video: "assets/video/mizzou-football.mp4", poster: "assets/video/mizzou-football-poster.jpg" }, // TODO: real title
-    { title: "Nebraska at Wrigley", subtitle: "Nebraska Volleyball", video: "assets/video/nebraska-wrigley.mp4", poster: "assets/video/nebraska-wrigley-poster.jpg", link: "nebraska-at-wrigley" },
+    { title: "Odyssey", subtitle: "Mizzou Football", video: "assets/video/odyssey.mp4", poster: "assets/video/odyssey-poster.jpg", aspect: 16 / 9 },
+    { title: "You", subtitle: "Mizzou Football", video: "assets/video/you.mp4", poster: "assets/video/you-poster.jpg", aspect: 4 / 3 },
+    { title: "Game Day", subtitle: "Mizzou Football", video: "assets/video/mizzou-football.mp4", poster: "assets/video/mizzou-football-poster.jpg", aspect: 4 / 5 }, // TODO: real title
   ],
 
   // Categories used for the filter bar on the Projects page.

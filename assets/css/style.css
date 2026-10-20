@@ -84,6 +84,7 @@ p { margin: 0 0 1em; }
 .hero-text { position: absolute; z-index: 2; left: var(--gutter); right: var(--gutter); bottom: 14vh; }
 .hero-text h1 { font-size: clamp(2.6rem, 8vw, 6.5rem); letter-spacing: 0.06em; margin-bottom: 0.15em; }
 .hero-text p { font-family: var(--font-display); letter-spacing: 0.2em; text-transform: uppercase; font-size: clamp(0.8rem, 1.4vw, 1rem); opacity: 0.85; }
+.hero-btn { margin-top: 1.6rem; background: rgba(0,0,0,.25); backdrop-filter: blur(4px); }
 .hero-controls { position: absolute; z-index: 2; right: var(--gutter); bottom: 40px; display: flex; align-items: center; gap: 18px; font-family: var(--font-display); font-size: 0.8rem; letter-spacing: 0.15em; }
 .hero-controls button { background: none; border: 0; color: var(--text); font-size: 1.6rem; cursor: pointer; opacity: 0.7; padding: 4px 8px; }
 .hero-controls button:hover { opacity: 1; }
@@ -118,9 +119,11 @@ p { margin: 0 0 1em; }
 
 /* Featured films (home) */
 #work { padding-top: 0; }
-.featured-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 48px 28px; }
-@media (max-width: 760px) { .featured-grid { grid-template-columns: 1fr; } }
-.film-frame { position: relative; aspect-ratio: 16 / 9; background: #000; overflow: hidden; }
+/* One film per row; scroll down for the next. Each frame keeps the film's own shape,
+   capped so a whole film fits on screen (tall films narrow instead of overflowing). */
+.featured-grid { display: grid; gap: clamp(64px, 9vw, 120px); }
+.film { width: min(100%, calc(80vh * var(--ar, 1.7778))); margin: 0 auto; }
+.film-frame { position: relative; aspect-ratio: var(--ar, 16 / 9); background: #000; overflow: hidden; }
 .film-frame video, .film-frame iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; object-fit: contain; background: #000; }
 .film-play { position: absolute; inset: 0; width: 100%; padding: 0; border: 0; background: none; cursor: pointer; }
 .film-play img { width: 100%; height: 100%; object-fit: cover; filter: brightness(0.7); transition: transform 0.8s var(--ease), filter 0.5s; }

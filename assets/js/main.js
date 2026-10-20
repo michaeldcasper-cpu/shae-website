@@ -124,7 +124,7 @@
       .map((f, i) => {
         const title = f.link ? `<a href="project.html?id=${encodeURIComponent(f.link)}">${esc(f.title)}</a>` : esc(f.title);
         return `
-        <article class="film reveal">
+        <article class="film reveal" style="--ar:${+f.aspect || 16 / 9}">
           <div class="film-frame">
             <button class="film-play" data-index="${i}" aria-label="Play ${esc(f.title)}">
               <img src="${esc(f.poster)}" alt="" loading="lazy">
