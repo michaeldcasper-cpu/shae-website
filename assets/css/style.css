@@ -146,10 +146,11 @@ p { margin: 0 0 1em; }
 @media (max-width: 760px) { .project-info { grid-template-columns: 1fr; } }
 .video { position: relative; aspect-ratio: 16 / 9; margin-bottom: 48px; background: var(--bg-2); }
 .video iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
-.gallery { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-.gallery img { width: 100%; height: 100%; object-fit: cover; cursor: zoom-in; }
-.gallery img:nth-child(3n + 1) { grid-column: 1 / -1; }
-@media (max-width: 600px) { .gallery { grid-template-columns: 1fr; } }
+/* Masonry columns: keeps portrait and landscape shots at their natural shape */
+.gallery { columns: 3; column-gap: 16px; }
+.gallery img { width: 100%; height: auto; margin-bottom: 16px; break-inside: avoid; cursor: zoom-in; }
+@media (max-width: 960px) { .gallery { columns: 2; } }
+@media (max-width: 600px) { .gallery { columns: 1; } }
 .next-project { display: block; margin-top: 96px; padding-top: 48px; border-top: 1px solid var(--line); }
 .next-title { font-family: var(--font-display); font-size: clamp(1.8rem, 4vw, 3rem); }
 
