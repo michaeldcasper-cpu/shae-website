@@ -27,7 +27,7 @@ const SITE = {
   ],
 
   // Categories used for the filter bar on the Projects page.
-  categories: ["Sports"], // add more (e.g. "Documentary", "Events") as new work comes in
+  categories: ["Sports", "Lifestyle"],
 
   // Projects — the home "Projects" bar and the Projects page are built from this list.
   // id: used in the link (project.html?id=...), keep it lowercase-with-dashes.
@@ -49,6 +49,61 @@ const SITE = {
         "assets/img/projects/mizzou-football/mizzou-football-03.jpg",
         "assets/img/projects/mizzou-football/mizzou-football-04.jpg",
         "assets/img/projects/mizzou-football/mizzou-football-05.jpg",
+      ],
+    },
+    {
+      id: "mizzou-basketball",
+      title: "Mizzou Basketball",
+      category: "Sports",
+      year: "2026",
+      client: "Mizzou Athletics", // TODO: confirm
+      cover: "assets/img/projects/mizzou-basketball/mizzou-basketball-10.jpg",
+      summary: "Men's and women's basketball at Mizzou Arena through the 2025–26 season.", // TODO: Shae's own words
+      video: "",
+      photos: [
+        "assets/img/projects/mizzou-basketball/mizzou-basketball-01.jpg",
+        "assets/img/projects/mizzou-basketball/mizzou-basketball-02.jpg",
+        "assets/img/projects/mizzou-basketball/mizzou-basketball-03.jpg",
+        "assets/img/projects/mizzou-basketball/mizzou-basketball-04.jpg",
+        "assets/img/projects/mizzou-basketball/mizzou-basketball-05.jpg",
+        "assets/img/projects/mizzou-basketball/mizzou-basketball-06.jpg",
+        "assets/img/projects/mizzou-basketball/mizzou-basketball-07.jpg",
+        "assets/img/projects/mizzou-basketball/mizzou-basketball-08.jpg",
+        "assets/img/projects/mizzou-basketball/mizzou-basketball-09.jpg",
+        "assets/img/projects/mizzou-basketball/mizzou-basketball-10.jpg",
+        "assets/img/projects/mizzou-basketball/mizzou-basketball-11.jpg",
+        "assets/img/projects/mizzou-basketball/mizzou-basketball-12.jpg",
+      ],
+    },
+    {
+      id: "mizzou-volleyball",
+      title: "Mizzou Volleyball",
+      category: "Sports",
+      year: "2025",
+      client: "Mizzou Athletics", // TODO: confirm
+      cover: "assets/img/projects/mizzou-volleyball/mizzou-volleyball-03.jpg",
+      summary: "Mizzou volleyball at the Hearnes Center.", // TODO: Shae's own words
+      video: "",
+      photos: [
+        "assets/img/projects/mizzou-volleyball/mizzou-volleyball-01.jpg",
+        "assets/img/projects/mizzou-volleyball/mizzou-volleyball-02.jpg",
+        "assets/img/projects/mizzou-volleyball/mizzou-volleyball-03.jpg",
+      ],
+    },
+    {
+      id: "mizzou-athletics",
+      title: "Mizzou Athletics",
+      category: "Sports",
+      year: "2026",
+      client: "Mizzou Athletics", // TODO: confirm
+      cover: "assets/img/projects/mizzou-athletics/mizzou-athletics-04.jpg",
+      summary: "Softball, baseball and soccer across the Mizzou athletics calendar.", // TODO: Shae's own words
+      video: "",
+      photos: [
+        "assets/img/projects/mizzou-athletics/mizzou-athletics-01.jpg",
+        "assets/img/projects/mizzou-athletics/mizzou-athletics-02.jpg",
+        "assets/img/projects/mizzou-athletics/mizzou-athletics-03.jpg",
+        "assets/img/projects/mizzou-athletics/mizzou-athletics-04.jpg",
       ],
     },
     {
@@ -126,37 +181,41 @@ const SITE = {
         "assets/img/projects/kentucky-vb/kentucky-vb-23.jpg",
       ],
     },
+    {
+      id: "depaul-prep-football",
+      title: "DePaul Prep Media Day",
+      category: "Sports",
+      year: "2025",
+      client: "DePaul College Prep", // TODO: confirm
+      cover: "assets/img/projects/depaul-prep-football/depaul-prep-football-01.jpg",
+      summary: "DePaul College Prep football media day at Wrigley Field and Navy Pier.", // TODO: Shae's own words
+      video: "",
+      photos: [
+        "assets/img/projects/depaul-prep-football/depaul-prep-football-01.jpg",
+        "assets/img/projects/depaul-prep-football/depaul-prep-football-02.jpg",
+      ],
+    },
+    {
+      id: "day-in-the-life",
+      title: "Day in the Life",
+      category: "Lifestyle",
+      year: "2025",
+      client: "Personal project", // TODO: confirm
+      cover: "assets/img/projects/day-in-the-life/day-in-the-life-01.jpg",
+      summary: "A day-in-the-life lifestyle shoot.", // TODO: Shae's own words
+      video: "",
+      photos: [
+        "assets/img/projects/day-in-the-life/day-in-the-life-01.jpg",
+        "assets/img/projects/day-in-the-life/day-in-the-life-02.jpg",
+        "assets/img/projects/day-in-the-life/day-in-the-life-03.jpg",
+        "assets/img/projects/day-in-the-life/day-in-the-life-04.jpg",
+      ],
+    },
   ],
 
   // More of Shae's best work that isn't in a project yet. It rotates in the home-page photo
   // cylinder along with every project photo (clicks go to the Projects page).
-  collection: [
-    "assets/img/collection/mizzou-basketball-01.jpg",
-    "assets/img/collection/mizzou-basketball-02.jpg",
-    "assets/img/collection/mizzou-basketball-03.jpg",
-    "assets/img/collection/mizzou-basketball-04.jpg",
-    "assets/img/collection/mizzou-basketball-05.jpg",
-    "assets/img/collection/mizzou-basketball-06.jpg",
-    "assets/img/collection/mizzou-basketball-07.jpg",
-    "assets/img/collection/mizzou-basketball-08.jpg",
-    "assets/img/collection/mizzou-basketball-09.jpg",
-    "assets/img/collection/mizzou-basketball-10.jpg",
-    "assets/img/collection/mizzou-basketball-11.jpg",
-    "assets/img/collection/mizzou-basketball-12.jpg",
-    "assets/img/collection/mizzou-volleyball-01.jpg",
-    "assets/img/collection/mizzou-volleyball-02.jpg",
-    "assets/img/collection/mizzou-volleyball-03.jpg",
-    "assets/img/collection/hs-football-01.jpg",
-    "assets/img/collection/hs-football-02.jpg",
-    "assets/img/collection/day-in-the-life-01.jpg",
-    "assets/img/collection/day-in-the-life-02.jpg",
-    "assets/img/collection/day-in-the-life-03.jpg",
-    "assets/img/collection/day-in-the-life-04.jpg",
-    "assets/img/collection/mizzou-sports-01.jpg",
-    "assets/img/collection/mizzou-sports-02.jpg",
-    "assets/img/collection/mizzou-sports-03.jpg",
-    "assets/img/collection/mizzou-sports-04.jpg",
-  ],
+  collection: [],
 
   about: {
     portrait: "assets/img/about/portrait.jpg",

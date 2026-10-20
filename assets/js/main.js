@@ -183,7 +183,7 @@
   function renderProjectBar() {
     const bar = $("#project-bar");
     if (!bar) return;
-    bar.innerHTML = SITE.projects.slice(0, 6).map(card).join("");
+    bar.innerHTML = SITE.projects.map(card).join("");
     const scrollBy = (dir) => bar.scrollBy({ left: dir * bar.clientWidth * 0.8, behavior: "smooth" });
     $("#bar-prev")?.addEventListener("click", () => scrollBy(-1));
     $("#bar-next")?.addEventListener("click", () => scrollBy(1));
