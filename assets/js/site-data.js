@@ -21,9 +21,9 @@ const SITE = {
   // video: an .mp4 in assets/video/ (or a YouTube/Vimeo link); poster: the still shown before play.
   // aspect: the film's width / height, so it shows uncropped. link: optional project id for the title.
   featured: [
-    { title: "Odyssey", subtitle: "Mizzou Football", video: "assets/video/odyssey.mp4", poster: "assets/video/odyssey-poster.jpg", aspect: 16 / 9 },
-    { title: "You", subtitle: "Mizzou Football", video: "assets/video/you.mp4", poster: "assets/video/you-poster.jpg", aspect: 4 / 3 },
-    { title: "Game Day", subtitle: "Mizzou Football", video: "assets/video/mizzou-football.mp4", poster: "assets/video/mizzou-football-poster.jpg", aspect: 4 / 5 }, // TODO: real title
+    { title: "Odyssey", subtitle: "Mizzou Football", video: "assets/video/odyssey.mp4", poster: "assets/video/odyssey-poster.jpg", link: "mizzou-football", aspect: 16 / 9 },
+    { title: "You", subtitle: "Mizzou Football", video: "assets/video/you.mp4", poster: "assets/video/you-poster.jpg", link: "mizzou-football", aspect: 4 / 3 },
+    { title: "Game Day", subtitle: "Mizzou Football", video: "assets/video/mizzou-football.mp4", poster: "assets/video/mizzou-football-poster.jpg", link: "mizzou-football", aspect: 4 / 5 }, // TODO: real title
   ],
 
   // Categories used for the filter bar on the Projects page.
@@ -34,6 +34,23 @@ const SITE = {
   // video: optional .mp4 in assets/video/ or a YouTube/Vimeo link; leave "" for photo-only projects.
   // heroVideo: optional silent .mp4 that loops behind the project title.
   projects: [
+    {
+      id: "mizzou-football",
+      title: "Mizzou Football",
+      category: "Sports",
+      year: "2025",
+      client: "Mizzou Athletics", // TODO: confirm client / outlet
+      cover: "assets/img/projects/mizzou-football/mizzou-football-05.jpg",
+      summary: "Game day with Mizzou Football at Faurot Field.", // TODO: Shae's own words
+      video: "",
+      photos: [
+        "assets/img/projects/mizzou-football/mizzou-football-01.jpg",
+        "assets/img/projects/mizzou-football/mizzou-football-02.jpg",
+        "assets/img/projects/mizzou-football/mizzou-football-03.jpg",
+        "assets/img/projects/mizzou-football/mizzou-football-04.jpg",
+        "assets/img/projects/mizzou-football/mizzou-football-05.jpg",
+      ],
+    },
     {
       id: "nebraska-at-wrigley",
       title: "Nebraska at Wrigley",
@@ -109,6 +126,36 @@ const SITE = {
         "assets/img/projects/kentucky-vb/kentucky-vb-23.jpg",
       ],
     },
+  ],
+
+  // More of Shae's best work that isn't in a project yet. It rotates in the home-page photo
+  // cylinder along with every project photo (clicks go to the Projects page).
+  collection: [
+    "assets/img/collection/mizzou-basketball-01.jpg",
+    "assets/img/collection/mizzou-basketball-02.jpg",
+    "assets/img/collection/mizzou-basketball-03.jpg",
+    "assets/img/collection/mizzou-basketball-04.jpg",
+    "assets/img/collection/mizzou-basketball-05.jpg",
+    "assets/img/collection/mizzou-basketball-06.jpg",
+    "assets/img/collection/mizzou-basketball-07.jpg",
+    "assets/img/collection/mizzou-basketball-08.jpg",
+    "assets/img/collection/mizzou-basketball-09.jpg",
+    "assets/img/collection/mizzou-basketball-10.jpg",
+    "assets/img/collection/mizzou-basketball-11.jpg",
+    "assets/img/collection/mizzou-basketball-12.jpg",
+    "assets/img/collection/mizzou-volleyball-01.jpg",
+    "assets/img/collection/mizzou-volleyball-02.jpg",
+    "assets/img/collection/mizzou-volleyball-03.jpg",
+    "assets/img/collection/hs-football-01.jpg",
+    "assets/img/collection/hs-football-02.jpg",
+    "assets/img/collection/day-in-the-life-01.jpg",
+    "assets/img/collection/day-in-the-life-02.jpg",
+    "assets/img/collection/day-in-the-life-03.jpg",
+    "assets/img/collection/day-in-the-life-04.jpg",
+    "assets/img/collection/mizzou-sports-01.jpg",
+    "assets/img/collection/mizzou-sports-02.jpg",
+    "assets/img/collection/mizzou-sports-03.jpg",
+    "assets/img/collection/mizzou-sports-04.jpg",
   ],
 
   about: {

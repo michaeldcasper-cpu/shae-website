@@ -62,38 +62,111 @@
     document.body.append(footer);
   }
 
-  /* ---------- Home: fading hero (Kyle Button style) ---------- */
-  function renderHero() {
-    const hero = $("#hero");
-    if (!hero) return;
-    hero.insertAdjacentHTML(
-      "afterbegin",
-      SITE.hero
-        .map((src, i) => `<div class="hero-slide${i === 0 ? " is-active" : ""}" style="background-image:url('${esc(src)}')"></div>`)
-        .join("")
-    );
+  /* ---------- Home: spinning photo cylinder ---------- */
+  // Three rows of photos wrapped around a 3D drum, the middle row turning the other way.
+  // Tiles on the far side face away and vanish (backface hidden); while hidden they swap
+  // to the next unused photo, so every photo eventually comes around.
+  function renderReel() {
+    const stage = $("#reel");
+    if (!stage) return;
     $("#hero-name").textContent = SITE.name;
     $("#hero-tagline").textContent = SITE.tagline;
 
-    const slides = hero.querySelectorAll(".hero-slide");
-    const counter = $("#hero-count");
-    let current = 0;
-    let timer;
-    const show = (n) => {
-      slides[current].classList.remove("is-active");
-      current = (n + slides.length) % slides.length;
-      slides[current].classList.add("is-active");
-      counter.textContent = `${String(current + 1).padStart(2, "0")} / ${String(slides.length).padStart(2, "0")}`;
+    const thumb = (src) => src.replace(/\/([^/]+)$/, "/thumbs/$1");
+    const pool = [
+      ...SITE.projects.flatMap((p) => p.photos.map((src) => ({ src: thumb(src), href: `project.html?id=${encodeURIComponent(p.id)}`, title: p.title }))),
+      ...(SITE.collection || []).map((src) => ({ src: thumb(src), href: "projects.html", title: "View all projects" })),
+    ];
+    let seed = 7; // fixed shuffle so neighbouring tiles come from different shoots
+    const rand = () => (seed = (seed * 9301 + 49297) % 233280) / 233280;
+    for (let i = pool.length - 1; i > 0; i--) {
+      const j = Math.floor(rand() * (i + 1));
+      [pool[i], pool[j]] = [pool[j], pool[i]];
+    }
+
+    const ROWS = 3, PER_ROW = 16, STEP = 360 / PER_ROW;
+    const dirs = [1, -1, 1];
+    let next = 0;
+    const take = () => pool[next++ % pool.length];
+    const tileHTML = (ph, angle) =>
+      `<a class="reel-tile" href="${ph.href}" style="--a:${angle}deg" data-a="${angle}" aria-label="${esc(ph.title)}" tabindex="-1"><img src="${esc(ph.src)}" alt="" draggable="false"></a>`;
+    stage.innerHTML = Array.from({ length: ROWS }, (_, r) => `
+      <div class="reel-row" style="--row:${r - 1}">
+        <div class="reel-ring">
+          ${Array.from({ length: PER_ROW }, (_, i) => tileHTML(take(), i * STEP + ((r % 2) * STEP) / 2)).join("")}
+        </div>
+      </div>`).join("");
+
+    const rings = [...stage.querySelectorAll(".reel-ring")];
+    const tiles = rings.map((ring) => [...ring.querySelectorAll(".reel-tile")].map((el) => ({ el, a: +el.dataset.a, back: false })));
+    const swap = (t) => {
+      const ph = take();
+      t.el.href = ph.href;
+      t.el.setAttribute("aria-label", ph.title);
+      t.el.firstElementChild.src = ph.src;
     };
-    const start = () => {
-      clearInterval(timer);
-      // The crossfade is the site's signature, so it always runs; reduced-motion only drops the zoom (see CSS).
-      timer = setInterval(() => show(current + 1), 5000);
+
+    const size = () => {
+      const h = Math.round(Math.min(window.innerHeight * 0.25, 250));
+      const w = Math.round(h * 1.3);
+      const r = Math.round((PER_ROW * (w + 14)) / (2 * Math.PI));
+      stage.style.setProperty("--h", `${h}px`);
+      stage.style.setProperty("--w", `${w}px`);
+      stage.style.setProperty("--r", `${r}px`);
     };
-    $("#hero-prev").addEventListener("click", () => { show(current - 1); start(); });
-    $("#hero-next").addEventListener("click", () => { show(current + 1); start(); });
-    show(0);
-    start();
+    size();
+    window.addEventListener("resize", size);
+
+    const angles = [0, 0, 0];
+    const CRUISE = 7, SLOW = 1.5; // degrees per second
+    let speed = CRUISE, target = CRUISE, last = performance.now();
+    stage.addEventListener("pointerenter", () => (target = SLOW));
+    stage.addEventListener("pointerleave", () => (target = CRUISE));
+    const tick = (now) => {
+      const dt = Math.min(now - last, 100) / 1000;
+      last = now;
+      speed += (target - speed) * Math.min(1, dt * 3);
+      rings.forEach((ring, r) => {
+        angles[r] = (angles[r] + dirs[r] * speed * dt + 360) % 360;
+        ring.style.transform = `translateZ(calc(var(--r) * -1)) rotateY(${angles[r]}deg)`;
+        if (pool.length <= ROWS * PER_ROW) return;
+        for (const t of tiles[r]) {
+          const e = (t.a + angles[r]) % 360;
+          const back = e > 140 && e < 220;
+          if (back && !t.back) swap(t);
+          t.back = back;
+        }
+      });
+      requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+    renderVeil();
+  }
+
+  // Dark veil over the cylinder with SHAE GRIFFITH cut out, so the photos shine through the letters.
+  function renderVeil() {
+    const svg = $("#reel-veil");
+    const text = $(".reel-text");
+    const draw = () => {
+      const W = window.innerWidth, H = $("#reel-hero").clientHeight;
+      const lines = W < 720 ? SITE.name.split(" ") : [SITE.name];
+      const fs = Math.round(lines.length > 1 ? Math.min(W * 0.2, 150) : Math.min(W * 0.115, 180));
+      const lh = fs * 0.98, cy = H * 0.44;
+      const ys = lines.map((_, i) => cy + (i - (lines.length - 1) / 2) * lh);
+      const t = (fill, extra = "") =>
+        lines.map((l, i) => `<text x="${W / 2}" y="${ys[i]}" font-size="${fs}" fill="${fill}" ${extra} text-anchor="middle" dominant-baseline="central">${esc(l)}</text>`).join("");
+      svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+      svg.innerHTML = `
+        <defs><mask id="veil-cut" maskUnits="userSpaceOnUse" x="0" y="0" width="${W}" height="${H}">
+          <rect width="${W}" height="${H}" fill="#fff"/>${t("#000")}
+        </mask></defs>
+        <rect width="${W}" height="${H}" fill="rgba(6,6,8,0.72)" mask="url(#veil-cut)"/>
+        ${t("none", 'stroke="rgba(255,255,255,0.55)" stroke-width="1.2"')}`;
+      text.style.top = `${ys[ys.length - 1] + fs * 0.62}px`;
+    };
+    draw();
+    window.addEventListener("resize", draw);
+    document.fonts?.ready.then(draw);
   }
 
   /* ---------- Project cards ---------- */
@@ -345,7 +418,7 @@
   }
 
   renderHeader();
-  renderHero();
+  renderReel();
   renderFeatured();
   renderProjectBar();
   renderAboutTeaser();
