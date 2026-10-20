@@ -53,7 +53,7 @@ p { margin: 0 0 1em; }
 .site-header.is-overlay:not(.is-scrolled):not(.nav-open) { background: transparent; backdrop-filter: none; }
 .site-header.is-scrolled { padding-top: 14px; padding-bottom: 14px; }
 .brand { font-family: var(--font-display); font-weight: 700; letter-spacing: 0.3em; font-size: 0.95rem; margin: 0; }
-.brand-logo { height: 44px; width: auto; display: block; }
+.brand-logo { height: 48px; width: auto; display: block; }
 /* Placeholder monogram until the real logo file is added (SITE.logo) */
 .brand-mark {
   display: inline-grid; place-items: center; width: 46px; height: 46px; border: 1.5px solid var(--text);
